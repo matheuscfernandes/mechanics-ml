@@ -10,10 +10,10 @@ Note: This code contains the generation of arbitrary geometry specifically using
 
 ### MODEL PARAMETERS ###
 NUMBER_OF_POINTS=100 # NUMBER OF POINTS TO GENERATE THE CENTER HOLE THROUGH THE PARAMETRIC FUNCTION
-RO=
-C1=
-C2=
-DOMAIN_SIZE=10.
+RO=1
+C1=.1
+C2=.2
+DOMAIN_SIZE=3.
 
 ### BEGIN RUNNING MODEL BY IMPORTING ABAQUS 12.1-1 FUNCTIONS ###
 Mdb()
@@ -38,29 +38,27 @@ session.journalOptions.setValues(replayGeometry=COORDINATE, recoverGeometry=COOR
 
 execfile('Functions.py')
 
+### GENERATING INNER SHAPE OF THE GEOMETRY ###
+
+THETAALL=np.linspace(0,2*pi,NUMBER_OF_POINTS)
+POINTS=[]
+for i in xrange(NUMBER_OF_POINTS):
+    THETA=THETAALL[i]
+    rr=RO*(1.+C1*cos(4*THETA)+C2*cos(8*THETA))
+    POINTS.append((rr*cos(THETA),rr*sin(THETA)))
+    if i==0: xFirst=rr*cos(THETA);yFirst=rr*sin(THETA)
+    if i==NUMBER_OF_POINTS-1: POINTS.append((xFirst,yFirst))
+
 ### GENERATING PART GEOMETRY ###
 mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=200.0)
-mdb.models['Model-1'].sketches['__profile__'].rectangle(point1=(-30.0, 26.25), 
-    point2=(26.25, -22.5))
 mdb.models['Model-1'].Part(dimensionality=TWO_D_PLANAR, name='Part-1', type=
     DEFORMABLE_BODY)
 
-
-### GENERATING INNER SHAPE OF THE GEOMETRY ###
-
-THETA=np.linspace(0,2*pi*0.99,NUMBER_OF_POINTS)
-
-rr=RO*(1.+C1*cos(4*THETA)+C2*cos(8*THETA))
-
-XCoor=rr*cos(THETA);YCoor=rr*sin(THETA)
-
-mdb.models['Model-1'].sketches['__profile__'].Spline(points=((-7.5, 2.5), (-3.75, 
-    7.5), (5.0, 6.25), (7.5, -1.25), (3.75, -6.25), (-1.25, -7.5), (-6.25, 
-    -5.0), (-7.5, 2.5)))
+mdb.models['Model-1'].sketches['__profile__'].rectangle(point1=(-DOMAIN_SIZE/2., -DOMAIN_SIZE/2.), 
+    point2=(DOMAIN_SIZE/2., DOMAIN_SIZE/2.))
+mdb.models['Model-1'].sketches['__profile__'].Spline(points=POINTS)
 
 
 mdb.models['Model-1'].parts['Part-1'].BaseShell(sketch=
     mdb.models['Model-1'].sketches['__profile__'])
-
-
 del mdb.models['Model-1'].sketches['__profile__']

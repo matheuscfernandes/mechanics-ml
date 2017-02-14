@@ -1,3 +1,21 @@
+'''
+Created by: Miguel Bessa & Matheus Fernandes
+
+California Institute of Technology
+Harvard University
+
+Note: This code contains the generation of arbitrary geometry specifically using ABAQUS 12.1-1 
+
+'''
+
+### MODEL PARAMETERS ###
+NUMBER_OF_POINTS=100 # NUMBER OF POINTS TO GENERATE THE CENTER HOLE THROUGH THE PARAMETRIC FUNCTION
+RO=1
+C1=.1
+C2=.2
+DOMAIN_SIZE=3.
+
+### BEGIN RUNNING MODEL BY IMPORTING ABAQUS 12.1-1 FUNCTIONS ###
 Mdb()
 from part import *
 from material import *
@@ -19,3 +37,28 @@ import time
 session.journalOptions.setValues(replayGeometry=COORDINATE, recoverGeometry=COORDINATE)
 
 execfile('Functions.py')
+
+### GENERATING INNER SHAPE OF THE GEOMETRY ###
+
+THETAALL=np.linspace(0,2*pi,NUMBER_OF_POINTS)
+POINTS=[]
+for i in xrange(NUMBER_OF_POINTS):
+    THETA=THETAALL[i]
+    rr=RO*(1.+C1*cos(4*THETA)+C2*cos(8*THETA))
+    POINTS.append((rr*cos(THETA),rr*sin(THETA)))
+    if i==0: xFirst=rr*cos(THETA);yFirst=rr*sin(THETA)
+    if i==NUMBER_OF_POINTS-1: POINTS.append((xFirst,yFirst))
+
+### GENERATING PART GEOMETRY ###
+mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=200.0)
+mdb.models['Model-1'].Part(dimensionality=TWO_D_PLANAR, name='Part-1', type=
+    DEFORMABLE_BODY)
+
+mdb.models['Model-1'].sketches['__profile__'].rectangle(point1=(-DOMAIN_SIZE/2., -DOMAIN_SIZE/2.), 
+    point2=(DOMAIN_SIZE/2., DOMAIN_SIZE/2.))
+mdb.models['Model-1'].sketches['__profile__'].Spline(points=POINTS)
+
+
+mdb.models['Model-1'].parts['Part-1'].BaseShell(sketch=
+    mdb.models['Model-1'].sketches['__profile__'])
+del mdb.models['Model-1'].sketches['__profile__']

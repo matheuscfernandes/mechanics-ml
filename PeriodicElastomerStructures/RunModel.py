@@ -14,6 +14,7 @@ RO=1
 C1=.1
 C2=.2
 DOMAIN_SIZE=3.5
+TOL=1E-5
 
 ### BEGIN RUNNING MODEL BY IMPORTING ABAQUS 12.1-1 FUNCTIONS ###
 Mdb()
@@ -70,8 +71,7 @@ Part_Full=mdb.models['Model-1'].parts['Part-1']
 ### CREATING ASSEMBLY ###
 mdb.models['Model-1'].rootAssembly.DatumCsysByDefault(CARTESIAN)
 #INSTANCE DEFINITION
-Instace_Full=mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='Part-1-1', 
-	part=Part_Full)
+Instance_Full=mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='Part-1-1', part=Part_Full)
 
 
 ### SEEDING MODEL AND GENERATING MESH ###
@@ -85,8 +85,30 @@ Part_Full.setElementType(elemTypes=(ElemType(
 mdb.models['Model-1'].parts['Part-1'].generateMesh()
 
 ### CREATING STEPS ###
+mdb.models['Model-1'].StaticStep(maxNumInc=1000, name='Step-1', previous='Initial')
 
+
+Model_RootAssembly=mdb.models['Model-1'].rootAssembly
 ### CREATING SETS ###
+mdb.models['Model-1'].rootAssembly.regenerate()
+Model_RootAssembly.Set(name='Bottom_Nodes', nodes=
+	Instance_Full.nodes.getByBoundingBox(-DOMAIN_SIZE/2. - TOL, -DOMAIN_SIZE/2. - TOL,-TOL, DOMAIN_SIZE/2. + TOL, -DOMAIN_SIZE/2. + TOL,+TOL) ) 
+Model_RootAssembly.Set(name='Top_Nodes', nodes=
+	Instance_Full.nodes.getByBoundingBox(-DOMAIN_SIZE/2. - TOL, DOMAIN_SIZE/2. - TOL,-TOL, DOMAIN_SIZE/2. + TOL, DOMAIN_SIZE/2. + TOL,+TOL) )   
+Model_RootAssembly.Set(name='Left_Nodes', nodes=
+	Instance_Full.nodes.getByBoundingBox(-DOMAIN_SIZE/2. - TOL, -DOMAIN_SIZE/2. - TOL,-TOL, -DOMAIN_SIZE/2. + TOL, DOMAIN_SIZE/2.+ TOL,+TOL) )   
+Model_RootAssembly.Set(name='Right_Nodes', nodes=
+	Instance_Full.nodes.getByBoundingBox(DOMAIN_SIZE/2. - TOL,-DOMAIN_SIZE/2. - TOL,-TOL, DOMAIN_SIZE/2. + TOL,DOMAIN_SIZE/2. + TOL,+TOL) )
+
+Model_RootAssembly.Set(name='AllEdge_Nodes', nodes=[
+	Instance_Full.nodes.getByBoundingBox(-DOMAIN_SIZE/2. - TOL, -DOMAIN_SIZE/2. - TOL,-TOL, DOMAIN_SIZE/2. + TOL, -DOMAIN_SIZE/2. + TOL,+TOL),
+	Instance_Full.nodes.getByBoundingBox(-DOMAIN_SIZE/2. - TOL, DOMAIN_SIZE/2. - TOL,-TOL, DOMAIN_SIZE/2. + TOL, DOMAIN_SIZE/2. + TOL,+TOL) ,
+	Instance_Full.nodes.getByBoundingBox(-DOMAIN_SIZE/2. - TOL, -DOMAIN_SIZE/2. - TOL,-TOL, -DOMAIN_SIZE/2. + TOL, DOMAIN_SIZE/2.+ TOL,+TOL),
+	Instance_Full.nodes.getByBoundingBox(DOMAIN_SIZE/2. - TOL,-DOMAIN_SIZE/2. - TOL,-TOL, DOMAIN_SIZE/2. + TOL,DOMAIN_SIZE/2. + TOL,+TOL)
+	]) 
+
+### APPLY PERIODIC BOUNDARY CONDITIONS ###
+PeriodicBound2DXY(mdb,'Model-1','Top_Nodes','Bottom_Nodes','Right_Nodes','Left_Nodes',[(DOMAIN_SIZE,0.0),(0.0,DOMAIN_SIZE)])
 
 
 ### DEFINING MATERIAL PROPERTIES AND SECTION PROPERTIES ###

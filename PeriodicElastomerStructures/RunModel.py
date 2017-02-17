@@ -13,7 +13,7 @@ NUMBER_OF_POINTS=100 # NUMBER OF POINTS TO GENERATE THE CENTER HOLE THROUGH THE 
 RO=1
 C1=.1
 C2=.2
-DOMAIN_SIZE=3.
+DOMAIN_SIZE=3.5
 
 ### BEGIN RUNNING MODEL BY IMPORTING ABAQUS 12.1-1 FUNCTIONS ###
 Mdb()
@@ -62,3 +62,31 @@ mdb.models['Model-1'].sketches['__profile__'].Spline(points=POINTS)
 mdb.models['Model-1'].parts['Part-1'].BaseShell(sketch=
     mdb.models['Model-1'].sketches['__profile__'])
 del mdb.models['Model-1'].sketches['__profile__']
+
+#PART DEFINITION
+Part_Full=mdb.models['Model-1'].parts['Part-1']
+
+
+### CREATING ASSEMBLY ###
+mdb.models['Model-1'].rootAssembly.DatumCsysByDefault(CARTESIAN)
+#INSTANCE DEFINITION
+Instace_Full=mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='Part-1-1', 
+	part=Part_Full)
+
+
+### SEEDING MODEL AND GENERATING MESH ###
+Part_Full.seedPart(deviationFactor=0.1,	minSizeFactor=0.1, size=0.1)
+Part_Full.setMeshControls(elemShape=QUAD, regions=Part_Full.faces[:])
+Part_Full.Set(name='ALL',faces=Part_Full.faces)
+Part_Full.setElementType(elemTypes=(ElemType(
+    elemCode=CPE8R, elemLibrary=STANDARD), ElemType(elemCode=CPE6M, 
+    elemLibrary=STANDARD)), regions=Part_Full.sets['ALL'])
+
+mdb.models['Model-1'].parts['Part-1'].generateMesh()
+
+### CREATING STEPS ###
+
+### CREATING SETS ###
+
+
+### DEFINING MATERIAL PROPERTIES AND SECTION PROPERTIES ###

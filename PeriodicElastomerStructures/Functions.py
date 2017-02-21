@@ -115,7 +115,7 @@ def ExtractVirtualPointU(instancename,NameStep,setname,JobName):
 	
 	xDisp=displacement[0].data[0]
 	yDisp=displacement[0].data[1]
-
+    
 	odb.close()
 	return Time,xDisp,yDisp
 				
@@ -150,13 +150,13 @@ def PeriodicBound2D(mdb,NameModel,NameSet,LatticeVec):
         part=mdb.models[NameModel].parts[NameRef1])
     mdb.models[NameModel].rootAssembly.Instance(dependent=ON, name=NameRef2, 
         part=mdb.models[NameModel].parts[NameRef2])
-
+    
     #Create set of reference points
     mdb.models[NameModel].rootAssembly.Set(name=NameRef1, referencePoints=(
         mdb.models[NameModel].rootAssembly.instances[NameRef1].referencePoints[1],))
     mdb.models[NameModel].rootAssembly.Set(name=NameRef2, referencePoints=(
         mdb.models[NameModel].rootAssembly.instances[NameRef2].referencePoints[1],))
-
+    
     #Get all nodes
     nodesAll=mdb.models[NameModel].rootAssembly.sets[NameSet].nodes
     nodesAllCoor=[]
@@ -205,12 +205,12 @@ def UpdatePeriodicBound2D(mdb,NameModel,NameRef1,NameRef2,repConst):
 		Node1=mdb.models[NameModel].rootAssembly.sets['Node-1-'+str(j)].nodes[0].coordinates
 		Node2=mdb.models[NameModel].rootAssembly.sets['Node-2-'+str(j)].nodes[0].coordinates
 		dx=(Node2[0]-Node1[0]);dy=(Node2[1]-Node1[1])
-
+        
 		# for Dim1 in [1,2]:
 		#     mdb.models[NameModel].constraints['PerConst'+str(Dim1)+'-'+str(j)].setValues(
 		# 		terms=((1.0,'Node-1-'+str(j), Dim1),(-1.0, 'Node-2-'+str(j), Dim1) ,
 	 #   		        (dx, 'RefPoint-'+str(Dim1-1), 1),(dy, 'RefPoint-'+str(Dim1-1), 2)))
-
+        
 		mdb.models[NameModel].constraints['PerConst1-'+str(j)].setValues(terms=((1.0, 
 		    'Node-1-'+str(j), 1), (-1.0, 'Node-2-'+str(j), 1), (dx, NameRef1, 1), (dy, 
 		    NameRef1, 2)))
@@ -236,13 +236,13 @@ def PeriodicBound2DXY(mdb,NameModel,NameSetTop,NameSetBottom,NameSetRight,NameSe
 		part=mdb.models[NameModel].parts[NameRef1])
 	mdb.models[NameModel].rootAssembly.Instance(dependent=ON, name=NameRef2, 
 		part=mdb.models[NameModel].parts[NameRef2])
-
+    
 	#Create set of reference points
 	mdb.models[NameModel].rootAssembly.Set(name=NameRef1, referencePoints=(
 		mdb.models[NameModel].rootAssembly.instances[NameRef1].referencePoints[1],))
 	mdb.models[NameModel].rootAssembly.Set(name=NameRef2, referencePoints=(
 		mdb.models[NameModel].rootAssembly.instances[NameRef2].referencePoints[1],))
-
+    
 	#Get all nodes NameSet
 	nodesTop=mdb.models[NameModel].rootAssembly.sets[NameSetTop].nodes
 	nodesBottom=mdb.models[NameModel].rootAssembly.sets[NameSetBottom].nodes

@@ -13,11 +13,11 @@ DataIn = load('-mat', fileName);
 XP=DataIn.dataPAll(:,1:3);
 YP=DataIn.dataPAll(:,4);
 
-Mdl = TreeBagger(5000,XP,YP,'method','regression','OOBPredictorImportance','on',... 
-                 'MinLeafSize',1,'NumPrint',100,'NumPredictorsToSample','all');
-
+% Mdl = TreeBagger(5000,XP,YP,'method','regression','OOBPredictorImportance','on',... 
+%                  'MinLeafSize',1,'NumPrint',100,'NumPredictorsToSample','all');
+save('TrainedRandomForestObject.mat','Mdl')
 %% Testing with training data to evaluate method
-HMaster=10;TMaster=1;VNorm=1256.66662598;
+VNorm=1256.66662598;
 
 H=(77/50);T=(86/50);
 
@@ -39,8 +39,7 @@ legend('Prediction','Data','location','southeast')
 
 
 %% Testing with never seen data
-% HMaster=10;TMaster=1;
-% 
+
 % H=(75/50);T=(300/50);
 % 
 % TestData=importdata('../pv-H75T300.txt');
@@ -55,5 +54,5 @@ legend('Prediction','Data','location','southeast')
 % YPredict=predict(Mdl,XPredict);
 % hold on
 % plot(XPredict(:,3),YPredict,'b','linewidth',4)
-% plot(TestData(:,1),TestData(:,2),'--r','linewidth',4)
+% plot(TestData(:,1),TestData(:,2)./(0.027711),'--r','linewidth',4)
 % legend('Prediction','Data','location','southeast')

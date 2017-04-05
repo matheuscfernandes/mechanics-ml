@@ -14,7 +14,7 @@ XP=DataIn.dataPAll(:,1:3);
 YP=DataIn.dataPAll(:,4);
 
 
-Mdl = TreeBagger(1000,XP,YP,'method','regression');
+Mdl = TreeBagger(10000,XP,YP,'method','regression');
 
 %% Testing with training data to evaluate method
 HMaster=10;TMaster=1;VNorm=1256.66662598;
@@ -33,7 +33,7 @@ figure()
 YPredict=predict(Mdl,XPredict);
 hold on
 plot(XPredict(:,3),YPredict,'b','linewidth',4)
-% plot(TestData(:,1),TestData(:,2),'--r','linewidth',4)
+plot(TestData(:,1),TestData(:,2),'--r','linewidth',4)
 
 
 %% Testing with never seen data
